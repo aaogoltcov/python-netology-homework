@@ -20,58 +20,148 @@ directories = {
 # m – move – команда, которая спросит номер документа и целевую полку и переместит его с текущей полки на целевую;
 # as – add shelf – команда, которая спросит номер новой полки и добавит ее в перечень;
 
-for directory in documents:
-    print(directory)
-    # directory.clear()
-    i = 0
-    for key, value in directory.items():
-        print(key, value)
-        if value == '11-2':
-            directory.clear()
-            documents.remove({})
-            break
-
-print(documents)
-
 def person_name_show(command_line):
-    for document in documents:
-        document_number = str(input("Введите номер документа (для выхода нажмите q): "))
-        if document_number != "q":
-            print(document['name'])
-        else:
-            break
+
+    # Команда, которая спросит номер документа и выведет имя человека, которому он принадлежит
+    document_number = str(input("Введите номер документа: "))
+    if not document_number:
+        print('Вы ввели пустое значение...')
+    else:
+        for document in documents:
+            for key, value in document.items():
+                if document_number in value:
+                    print(document['name'])
 
 def documents_show(command_line):
+
+    # Команда, которая выведет список всех документов в формате passport "2207 876234" "Василий Гупкин"
     for document in documents:
         print(document['number'], document['name'])
 
 def shelf_number(command_line):
+
+    # Команда, которая спросит номер документа и выведет номер полки, на которой он находится
     document_number = str(input("Введите номер документа: "))
-    for key, value in directories.items():
-        shelf_get_key = 0
-        for numbers in value:
-            if document_number in value:
-                print('Номер полки: ', key)
-                shelf_get_key = 1
+    if not document_number:
+        print('Вы ввели пустое значение...')
+    else:
+        for key, value in directories.items():
+            shelf_get_key = 0
+            for numbers in value:
+                if document_number in value:
+                    print('Номер полки: ', key)
+                    shelf_get_key = 1
+                    break
+            if shelf_get_key == 1:
                 break
-        if shelf_get_key == 1:
-            break
-    if shelf_get_key == 0:
-            print('Извините, такого документа нет')
+        if shelf_get_key == 0:
+                print('Извините, такого документа нет')
 
 def new_document(command_line):
+
+    # Команда, которая добавит новый документ в каталог и в перечень полок, спросив его номер, тип, имя владельца и номер полки, на котором он будет храниться
     document_type = str(input("Введите тип документа: "))
     document_number = str(input("Введите номер документа: "))
     person_name = str(input("Введите ФИО на кого зарегестрирован документ: "))
     shelf_number = str(input("Введите номер полки для хранения (числом): "))
-    documents.append({"type": document_type, "number": document_number, "name": person_name})
-    for key, value in directories.items():
-        if key == shelf_number:
-            value.append(document_number)
-    print(f'Спасибо, данные обновлены: \n {documents} \n {directories}')
+
+    if not document_type or not document_number or not person_name or not shelf_number:
+        print('Вы ввели пустое значение...')
+    else:
+        # Проверка наличия полки и запись новых данных
+        shelf_exist = 0
+        for key in directories.keys():
+            if shelf_number in key:
+                shelf_exist = 1
+
+        if shelf_exist == 1:
+            for key, value in directories.items():
+                if key == shelf_number:
+                    value.append(document_number)
+            documents.append({"type": document_type, "number": document_number, "name": person_name})
+            print(f'Спасибо, данные обновлены: \n {documents} \n {directories}')
+        else:
+            print('Извините, такой полки не существует, сначала создайте полку...')
+
+def document_delete(command_line):
+
+    # Команда, которая спросит номер документа и удалит его из каталога и из перечня полок
+    document_number = str(input("Введите номер документа: "))
+    if not document_number:
+        print('Вы ввели пустое значение...')
+    else:
+        for directory in documents:
+            for key, value in directory.items():
+                # print(key, value)
+                if value == document_number:
+                    directory.clear()
+                    documents.remove({})
+                    break
+        for key, value in directories.items():
+            if document_number in value:
+                value.remove(document_number)
+        print(f"Документ удален из документов и с полки: \n {documents} \n {directories}")
+
+def document_move(command_line):
+
+    # Команда, которая спросит номер документа и целевую полку и переместит его с текущей полки на целевую
+    document_number = str(input("Введите номер документа для переноса: "))
+    shelf_number = str(input("Введите номер полки куда перенести документ (числом): "))
+    if not document_number or not shelf_number:
+        print('Вы ввели пустое значение...')
+    else:
+
+        # Проверка наличия документа
+        document_exist = 0
+        for key, value in directories.items():
+            if document_number in value:
+                document_exist = 1
+        if document_exist == 0:
+            print('Указанный документ не существует...')
+
+        # Удаление документа
+        if document_exist == 1:
+            for key, value in directories.items():
+                if document_number in value:
+                    value.remove(document_number)
+
+        # Проверка наличия полки и запись новых данных
+        shelf_exist = 0
+        for key in directories.keys():
+            if shelf_number in key:
+                shelf_exist = 1
+
+        # Перенос документа на полку
+        if shelf_exist == 1 and document_exist == 1:
+            for key, value in directories.items():
+                if key == shelf_number:
+                    value.append(document_number)
+            print(f'Спасибо, данные обновлены: \n {directories}')
+        elif shelf_exist == 0:
+            print('Извините, такой полки не существует, сначала создайте полку...')
+
+def shelf_new(command_line):
+
+    # Команда, которая спросит номер новой полки и добавит ее в перечень
+    shelf_number = str(input("Введите номер новой полки (числом): "))
+    if not shelf_number:
+        print('Вы ввели пустое значение...')
+    else:
+        shelf_exist = 0
+        for key in directories.keys():
+            if shelf_number in key:
+                shelf_exist = 1
+        if shelf_exist == 1:
+            print('Такая полка уже существует, попробуйте еще раз...')
+        else:
+            directories.update({shelf_number: []})
+            print(f'Спасибо, данные обновлены: \n {directories}')
 
 def main():
-    for document in documents:
+
+    # Главная функция выхова программы
+    command_line = 0
+    while command_line != 'q':
         command_line = str(input("Вы работаете с каталогом документов, введите пожалуйста команду (для выхода нажмите q): "))
         if command_line == 'p':
             person_name_show(command_line)
@@ -79,9 +169,17 @@ def main():
             documents_show(command_line)
         elif command_line == 's':
             shelf_number(command_line)
-        elif command_line == 'add':
+        elif command_line == 'a':
             new_document(command_line)
+        elif command_line == 'd':
+            document_delete(command_line)
+        elif command_line == 'm':
+            document_move(command_line)
+        elif command_line == 'as':
+            shelf_new(command_line)
         elif command_line == 'q':
+            print('Выхожу из программы!')
             break
-# main()
+
+main()
 
