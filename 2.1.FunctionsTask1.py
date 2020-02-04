@@ -1,7 +1,9 @@
 documents = [
     {"type": "passport", "number": "2207 876234", "name": "Василий Гупкин"},
     {"type": "invoice", "number": "11-2", "name": "Геннадий Покемонов"},
-    {"type": "insurance", "number": "10006", "name": "Аристарх Павлов"}
+    {"type": "insurance", "number": "10006", "name": "Аристарх Павлов"},
+    {"type": "passport", "number": "9999", "name": ""},
+    {"type": "passport", "number": "7777"}
 ]
 directories = {
     '1': ['2207 876234', '11-2', '5455 028765'],
@@ -27,16 +29,38 @@ def person_name_show(command_line):
     if not document_number:
         print('Вы ввели пустое значение...')
     else:
+        document_found = 0
         for document in documents:
             for key, value in document.items():
-                if document_number in value:
-                    print(document['name'])
+                if document_number == value:
+
+                    # Исключение для document['name']
+                    try:
+                        if document['name'] != "":
+                            print(document['name'])
+                        else:
+                            print('У документа поле "name" - пустое ...')
+                    except KeyError:
+                        print('У документа отсуствует поле "name" ...')
+
+                    document_found = 1
+        if document_found == 0:
+            print('К сожалению, такого документа нет...')
 
 def documents_show(command_line):
 
     # Команда, которая выведет список всех документов в формате passport "2207 876234" "Василий Гупкин"
     for document in documents:
-        print(document['number'], document['name'])
+
+        # Исключение для document['name']
+        try:
+            if document['name'] != "":
+                print(document['number'], document['name'])
+            else:
+                print(f"{document['number']} - у документа поле 'name' пустое")
+        except KeyError:
+            print(f"{document['number']} - у документа отсуствует поле 'name'")
+
 
 def shelf_number(command_line):
 
@@ -55,7 +79,7 @@ def shelf_number(command_line):
             if shelf_get_key == 1:
                 break
         if shelf_get_key == 0:
-                print('Извините, такого документа нет')
+                print('Извините, такого документа нет...')
 
 def new_document(command_line):
 
@@ -79,7 +103,7 @@ def new_document(command_line):
                 if key == shelf_number:
                     value.append(document_number)
             documents.append({"type": document_type, "number": document_number, "name": person_name})
-            print(f'Спасибо, данные обновлены: \n {documents} \n {directories}')
+            print('Спасибо, данные обновлены')
         else:
             print('Извините, такой полки не существует, сначала создайте полку...')
 
@@ -92,7 +116,6 @@ def document_delete(command_line):
     else:
         for directory in documents:
             for key, value in directory.items():
-                # print(key, value)
                 if value == document_number:
                     directory.clear()
                     documents.remove({})
@@ -100,7 +123,7 @@ def document_delete(command_line):
         for key, value in directories.items():
             if document_number in value:
                 value.remove(document_number)
-        print(f"Документ удален из документов и с полки: \n {documents} \n {directories}")
+        print("Документ удален из документов и с полки")
 
 def document_move(command_line):
 
@@ -136,7 +159,7 @@ def document_move(command_line):
             for key, value in directories.items():
                 if key == shelf_number:
                     value.append(document_number)
-            print(f'Спасибо, данные обновлены: \n {directories}')
+            print('Спасибо, данные обновлены')
         elif shelf_exist == 0:
             print('Извините, такой полки не существует, сначала создайте полку...')
 
@@ -155,12 +178,13 @@ def shelf_new(command_line):
             print('Такая полка уже существует, попробуйте еще раз...')
         else:
             directories.update({shelf_number: []})
-            print(f'Спасибо, данные обновлены: \n {directories}')
+            print('Спасибо, данные обновлены')
+
 
 def main():
 
     # Главная функция выхова программы
-    command_line = 0
+    command_line = str()
     while command_line != 'q':
         command_line = str(input("Вы работаете с каталогом документов, введите пожалуйста команду (для выхода нажмите q): "))
         if command_line == 'p':
